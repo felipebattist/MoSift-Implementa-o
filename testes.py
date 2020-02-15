@@ -4,7 +4,7 @@ import SIFT as sft
 import VideoCapture_features as vc
 import extraction as ext
 
-ext.compare_frames_opf('car-perspective-2.avi',1)
+print(np.arctan(180))
 
 
 

@@ -9,6 +9,30 @@ lk_params = dict(winSize = (15,15),
                  maxLevel = 2,
                  criteria = (cv.TERM_CRITERIA_EPS | cv.TERM_CRITERIA_COUNT, 10, 0.03))
 
+def compare_frames_opf(video_name, distance_limit):
+    all_kp = []
+    all_dsc = []
+    all_2d_points = []
+    number_of_frames = vc.count_frames(video_name)
+    for i in range(number_of_frames-2):
+        actual_frame = vc.capture_frame(video_name, i+1)
+        old_frame = vc.capture_frame(video_name, i)
+        actual_gray_frame = sft.to_gray(actual_frame)
+        old_gray_frame = sft.to_gray(old_frame)
+
+        frame_kp, frame_desc = sft.sift_features(old_gray_frame)
+
+        old_frame_points = sift_kp_2d(frame_kp)
+
+        new_frame_points, status, error = cv.calcOpticalFlowPyrLK(old_gray_frame, actual_gray_frame, old_frame_points, None, **lk_params)
+
+        frame_kp, frame_desc, frame_2d_kp = kp_moviment(frame_kp, frame_desc, new_frame_points, old_frame_points, distance_limit)
+
+
+        all_kp = all_kp + frame_kp
+        all_dsc = all_dsc + frame_desc
+        all_2d_points = all_2d_points + frame_2d_kp
+
 def sift_kp_2d(sift_kp):
     vet = []
     for kp in sift_kp:
@@ -45,32 +69,11 @@ def kp_moviment(sift_kp, sift_desc, old_points, new_points, distance_limit):
 
 
 
-def compare_frames_opf(video_name, distance_limit):
-    all_kp = []
-    all_dsc = []
-    all_2d_points = []
-    number_of_frames = vc.count_frames(video_name)
-    for i in range(number_of_frames-2):
-        actual_frame = vc.capture_frame(video_name, i+1)
-        old_frame = vc.capture_frame(video_name, i)
-        actual_gray_frame = sft.to_gray(actual_frame)
-        old_gray_frame = sft.to_gray(old_frame)
-
-        frame_kp, frame_desc = sft.sift_features(old_gray_frame)
-
-        old_frame_points = sift_kp_2d(frame_kp)
-
-        new_frame_points, status, error = cv.calcOpticalFlowPyrLK(old_gray_frame, actual_gray_frame, old_frame_points, None, **lk_params)
-
-        frame_kp, frame_desc, frame_2d_kp = kp_moviment(frame_kp, frame_desc, new_frame_points, old_frame_points, distance_limit)
 
 
 
 
 
-        all_kp = all_kp + frame_kp
-        all_dsc = all_dsc + frame_desc
-        all_2d_points = all_2d_points + frame_2d_kp
 
 
 
